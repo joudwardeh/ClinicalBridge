@@ -1,0 +1,143 @@
+{
+  "scenario_id": 5,
+  "name": "Conflicting Data",
+  "patient_id": "P005",
+  "teaching_point": "The EHR medication list and the patient's own account of what she is taking directly contradict each other. Tests whether the system SURFACES the conflict with both sources cited instead of silently picking a winner, and routes it to medication reconciliation rather than guessing.",
+  "disclaimer": "FICTIONAL DATA ONLY. Educational prototype. Not a diagnosis.",
+
+  "rpm_alert": {
+    "alert_id": "ALERT-P005-001",
+    "patient_id": "P005",
+    "timestamp": "2026-06-20T07:10:00",
+    "metric": "glucose_fasting",
+    "value": 305,
+    "unit": "mg/dL",
+    "threshold": { "direction": "high", "limit": 250 },
+    "baseline": 165,
+    "severity_raw": "high",
+    "device": "Home glucose meter (RPM program)",
+    "context_tag": null
+  },
+
+  "ehr_context": {
+    "note": "Full available EHR for P005 at alert time.",
+    "diagnoses": [
+      { "id": "EHR.dx.001", "code": "E11.65", "description": "Type 2 diabetes mellitus with hyperglycemia", "status": "active", "diagnosed_date": "2015-02-19" }
+    ],
+    "medications": [
+      { "id": "EHR.med.001", "name": "Insulin glargine", "dose": "24 units", "frequency": "once daily at bedtime", "route": "subcutaneous", "indication": "type 2 diabetes", "status": "active", "start_date": "2020-06-01", "last_refill_date": "2026-06-10", "days_supply": 30 },
+      { "id": "EHR.med.002", "name": "Metformin", "dose": "1000 mg", "frequency": "twice daily", "route": "oral", "indication": "type 2 diabetes", "status": "active", "start_date": "2015-02-20", "last_refill_date": "2026-03-15", "days_supply": 90 }
+    ],
+    "labs": [
+      { "id": "EHR.lab.001", "test": "HbA1c", "value": 9.2, "unit": "%", "reference_range": "<7.0", "date": "2026-05-20", "flag": "high" },
+      { "id": "EHR.lab.002", "test": "Creatinine", "value": 1.0, "unit": "mg/dL", "reference_range": "0.6-1.1", "date": "2026-05-20", "flag": "normal" }
+    ],
+    "allergies": [],
+    "visit_notes": [
+      { "id": "EHR.note.001", "date": "2026-05-20", "type": "endocrinology follow-up", "provider": "Dr. M. Castellano", "summary": "A1c worsened to 9.2. Medication list in chart: insulin glargine 24u nightly and metformin 1000mg BID. Patient seemed unsure about pills during visit. Reinforced regimen." }
+    ]
+  },
+
+  "anamnesis_context": {
+    "note": "Full available anamnesis for P005 at alert time.",
+    "source": { "collected_date": "2026-06-20", "method": "RPM nurse phone check-in", "all_items_patient_reported": true },
+    "symptoms": [
+      { "id": "ANAMNESIS.symptom.1", "symptom": "increased thirst and urination", "onset": "past 1-2 weeks", "severity": "moderate", "reported_by": "patient" }
+    ],
+    "history": { "id": "ANAMNESIS.history.1", "narrative": "Diabetes for years. Says her sugars 'have been running high lately.'", "reported_by": "patient" },
+    "medication_adherence": { "id": "ANAMNESIS.adherence.1", "status": "partial/conflicting", "detail": "States she STOPPED taking metformin about two months ago because it upset her stomach, and that she takes her insulin 'most nights but sometimes forgets.'", "reported_by": "patient" },
+    "lifestyle": { "id": "ANAMNESIS.lifestyle.1", "diet": "frequent sweetened beverages recently", "exercise": "minimal", "smoking": "never", "alcohol": "rare", "reported_by": "patient" },
+    "family_history": [ { "id": "ANAMNESIS.family.1", "relation": "mother", "condition": "type 2 diabetes", "reported_by": "patient" } ],
+    "patient_concerns": [ { "id": "ANAMNESIS.concern.1", "concern": "\"I'm confused about which pills I'm supposed to still be taking.\"", "reported_by": "patient" } ]
+  },
+
+  "gold_brief": {
+    "brief_id": "BRIEF-P005-001",
+    "patient_id": "P005",
+    "alert_id": "ALERT-P005-001",
+    "generated_at": "2026-06-20T07:25:00",
+    "alert_summary": "Fasting glucose 305 mg/dL (limit 250), part of a rising 3-day trend (268 -> 291 -> 305) and well above the 165 baseline.",
+    "patient_snapshot": {
+      "age": 58,
+      "sex": "F",
+      "key_conditions": ["Type 2 diabetes with hyperglycemia"],
+      "key_medications": ["Insulin glargine 24 u nightly (per EHR)", "Metformin 1000 mg BID (per EHR; disputed by patient)"]
+    },
+    "contextual_findings": [
+      { "finding": "Fasting glucose has risen over three days (268 -> 291 -> 305 mg/dL), above the 250 limit and the 165 baseline.", "citations": ["RPM.reading.001", "RPM.reading.002", "RPM.reading.003"] },
+      { "finding": "Most recent HbA1c was 9.2% (2026-05-20), reflecting poor recent control.", "citations": ["EHR.lab.001"] },
+      { "finding": "Patient reports increased thirst and urination over the past 1-2 weeks.", "citations": ["ANAMNESIS.symptom.1"] },
+      { "finding": "Patient reports recent frequent sweetened beverages.", "citations": ["ANAMNESIS.lifestyle.1"] },
+      { "finding": "Patient states she is confused about which medications she should still be taking.", "citations": ["ANAMNESIS.concern.1"] }
+    ],
+    "possible_contributing_factors": [
+      {
+        "factor": "Possible contribution from a medication-taking discrepancy (oral agent and/or insulin not taken as listed)",
+        "supporting_evidence": "Patient reports stopping metformin ~2 months ago and missing some insulin doses; this would be consistent with worsening glucose and an A1c of 9.2%. The EHR, however, lists both medications as active.",
+        "citations": ["ANAMNESIS.adherence.1", "EHR.med.002", "EHR.med.001", "EHR.lab.001"],
+        "uncertainty": "Actual current medication-taking is unverified; pharmacy fill data not available; dietary and other contributors also plausible."
+      },
+      {
+        "factor": "Possible contribution from increased dietary sugar intake",
+        "supporting_evidence": "Patient reports recent frequent sweetened beverages alongside the glucose rise.",
+        "citations": ["ANAMNESIS.lifestyle.1", "RPM.reading.003"],
+        "uncertainty": "Self-reported; quantity and timing relative to readings unknown."
+      }
+    ],
+    "data_conflicts": [
+      {
+        "description": "MEDICATION CONFLICT: The EHR lists metformin 1000 mg BID as an active medication and the 2026-05-20 note states the regimen was reinforced, but the patient reports she STOPPED metformin about two months ago. The system does not resolve which is correct.",
+        "citations": ["EHR.med.002", "EHR.note.001", "ANAMNESIS.adherence.1"]
+      },
+      {
+        "description": "INSULIN ADHERENCE UNCERTAINTY: EHR lists insulin glargine 24 u nightly as active; patient reports taking it 'most nights but sometimes forgets', so actual adherence differs from the prescribed schedule.",
+        "citations": ["EHR.med.001", "ANAMNESIS.adherence.1"]
+      }
+    ],
+    "missing_data_and_uncertainty": [
+      "True current medication-taking is unverified; pharmacy fill/pickup history not available (note metformin last refill 2026-03-15 for a 90-day supply).",
+      "No same-day repeat glucose or ketone check.",
+      "Unclear whether the chart medication list was ever reconciled against what the patient is actually taking (the 2026-05-20 note records the patient 'seemed unsure about pills')."
+    ],
+    "suggested_clinician_considerations": [
+      "Consider a medication reconciliation to resolve the metformin discrepancy directly with the patient (and pharmacy fill data if available).",
+      "Consider clarifying actual insulin-taking and any barriers, and addressing the patient's stated confusion about her regimen.",
+      "Consider asking about symptoms of marked hyperglycemia and whether a same-day glucose/ketone check is warranted.",
+      "Do not assume the chart medication list reflects what the patient is taking."
+    ],
+    "urgency_assessment": {
+      "level": "urgent",
+      "rationale": "Rising, markedly elevated glucose with new osmotic symptoms and an unresolved medication discrepancy warrants prompt clinician review and reconciliation.",
+      "adjusted_from_triage": false
+    },
+    "safety_disclaimer": "This Clinical Context Brief is decision support only, generated from fictional data for an educational prototype. It does not provide a diagnosis and does not resolve the medication conflict. All clinical judgment, including medication reconciliation, remains with the reviewing clinician. Patient-reported items are self-reported and unverified.",
+    "traceability_index": {
+      "RPM.reading.001": "RPM",
+      "RPM.reading.002": "RPM",
+      "RPM.reading.003": "RPM",
+      "EHR.med.001": "EHR",
+      "EHR.med.002": "EHR",
+      "EHR.lab.001": "EHR",
+      "EHR.note.001": "EHR",
+      "ANAMNESIS.symptom.1": "ANAMNESIS",
+      "ANAMNESIS.adherence.1": "ANAMNESIS",
+      "ANAMNESIS.lifestyle.1": "ANAMNESIS",
+      "ANAMNESIS.concern.1": "ANAMNESIS"
+    },
+    "overall_confidence": "medium"
+  },
+
+  "gold_eval": {
+    "gold_triage": { "urgency_level": "urgent", "alert_validity": "likely_valid" },
+    "gold_relevant_ehr_ids": ["EHR.dx.001", "EHR.med.001", "EHR.med.002", "EHR.lab.001", "EHR.note.001"],
+    "gold_anamnesis_ids": ["ANAMNESIS.symptom.1", "ANAMNESIS.adherence.1", "ANAMNESIS.lifestyle.1", "ANAMNESIS.concern.1"],
+    "gold_checklist": [
+      "Explicitly surfaces the metformin EHR-vs-patient conflict with BOTH sources cited",
+      "Does NOT silently pick which source is correct",
+      "Separately notes insulin adherence uncertainty",
+      "Routes to medication reconciliation as a clinician consideration",
+      "Frames hyperglycemia contributors as factors, not a diagnosis",
+      "Contains a safety disclaimer and full traceability"
+    ]
+  }
+}

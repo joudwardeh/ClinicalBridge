@@ -1,0 +1,20 @@
+# ClinicalBridge prototype dependencies
+#
+# Core (no-API mode) — the project runs end-to-end with just these:
+jsonschema>=4.0
+jupyter
+notebook
+# nbformat is pulled in by jupyter; listed for clarity
+nbformat
+
+# Genuine LangChain RAG backend for EHR retrieval (local embeddings + FAISS, no API keys).
+# These power langchain_pipeline/ (Documents -> splitter -> embeddings -> FAISS -> retriever).
+# If they are not installed, the EHR Retrieval backend degrades gracefully to the local
+# pure-Python TF-IDF retriever (rag_retrieval.py) and the rest of the project still runs.
+langchain>=1.0
+langchain-community>=0.4
+langchain-text-splitters>=1.0
+langchain-huggingface>=1.0
+faiss-cpu>=1.8
+sentence-transformers>=2.2
+# langchain-core is pulled in transitively by the packages above.

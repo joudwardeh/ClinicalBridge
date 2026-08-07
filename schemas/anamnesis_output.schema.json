@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "clinicalbridge/anamnesis_output",
+  "title": "Anamnesis Agent Output",
+  "description": "The RELEVANT subset of patient-reported information for this alert. Everything is labeled self-report; symptoms are never converted to diagnoses.",
+  "type": "object",
+  "required": ["alert_id", "patient_id", "relevant_symptoms", "adherence_findings", "lifestyle_factors", "relevant_family_history", "patient_concerns", "extraction_completeness", "data_gaps"],
+  "additionalProperties": false,
+  "properties": {
+    "alert_id": { "type": "string" },
+    "patient_id": { "type": "string" },
+    "relevant_symptoms": { "$ref": "#/$defs/anamnesis_item_array" },
+    "adherence_findings": { "$ref": "#/$defs/anamnesis_item_array" },
+    "lifestyle_factors": { "$ref": "#/$defs/anamnesis_item_array" },
+    "relevant_family_history": { "$ref": "#/$defs/anamnesis_item_array" },
+    "patient_concerns": { "$ref": "#/$defs/anamnesis_item_array" },
+    "extraction_completeness": {
+      "type": "object",
+      "description": "Which expected anamnesis domains were present vs absent.",
+      "properties": {
+        "symptoms": { "type": "string", "enum": ["present", "absent", "not_collected"] },
+        "adherence": { "type": "string", "enum": ["present", "absent", "not_collected"] },
+        "lifestyle": { "type": "string", "enum": ["present", "absent", "not_collected"] },
+        "family_history": { "type": "string", "enum": ["present", "absent", "not_collected"] },
+        "concerns": { "type": "string", "enum": ["present", "absent", "not_collected"] }
+      }
+    },
+    "data_gaps": { "type": "array", "items": { "type": "string" } }
+  },
+  "$defs": {
+    "anamnesis_item_array": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source_id", "content", "reported_by", "relevance_reason"],
+        "properties": {
+          "source_id": { "type": "string" },
+          "content": { "type": "string", "description": "Patient-reported content; preserve own words for concerns." },
+          "reported_by": { "type": "string", "enum": ["patient", "caregiver"], "description": "Always self-report provenance." },
+          "relevance_reason": { "type": "string" }
+        }
+      }
+    }
+  }
+}

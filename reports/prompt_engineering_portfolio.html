@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>ClinicalBridge - Prompt Engineering Portfolio</title><style>
+@page { size: A4; margin: 18mm 16mm; }
+* { box-sizing: border-box; }
+body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 11pt; line-height: 1.5; color: #1a1a1a; margin: 0; }
+h1 { font-size: 20pt; border-bottom: 2px solid #2c5f8a; padding-bottom: 6px; color: #1d3a52; }
+h2 { font-size: 15pt; margin-top: 22px; border-bottom: 1px solid #ccc; padding-bottom: 3px; color: #1d3a52; }
+h3 { font-size: 12.5pt; margin-top: 16px; color: #2c5f8a; }
+h4 { font-size: 11pt; margin-top: 12px; color: #333; }
+p, li { font-size: 11pt; }
+a { color: #1d4e79; text-decoration: none; }
+code { background: #f3f3f3; padding: 1px 4px; border-radius: 3px; font-family: 'Consolas','Courier New',monospace; font-size: 9.5pt; }
+pre { background: #f6f8fa; border: 1px solid #ddd; border-radius: 5px; padding: 10px 12px; font-family: 'Consolas','Courier New',monospace; font-size: 9pt; line-height: 1.4; white-space: pre-wrap; word-wrap: break-word; }
+pre code { background: none; padding: 0; }
+blockquote { border-left: 4px solid #2c5f8a; background: #eef4f9; margin: 12px 0; padding: 8px 14px; color: #333; }
+table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 9.5pt; page-break-inside: avoid; }
+th, td { border: 1px solid #bbb; padding: 5px 8px; text-align: left; vertical-align: top; }
+th { background: #2c5f8a; color: #fff; }
+tr:nth-child(even) td { background: #f4f7fa; }
+hr { border: none; border-top: 1px solid #ccc; margin: 18px 0; }
+h1, h2, h3, h4 { page-break-after: avoid; }
+ul, ol { padding-left: 22px; }
+.disclaimer-foot { margin-top: 24px; border-top: 1px solid #ccc; padding-top: 8px; font-size: 8.5pt; color: #777; }
+</style></head>
+<body>
+<h1>Prompt Engineering Portfolio — ClinicalBridge</h1>
+<p><strong>Project:</strong> ClinicalBridge: Bridging the Clinical Context Gap<br />
+<strong>Course:</strong> COP-3442 Prompt Engineering<br />
+<strong>University:</strong> Bahçeşehir University<br />
+<strong>Department:</strong> Artificial Intelligence Engineering Department<br />
+<strong>Professor:</strong> Binnur Kurt<br />
+<strong>Group Members:</strong>
+- Kenan Eliyan — 2286181
+- Rama Tamimi — 2285460
+- Joud Wardeh — 2282493</p>
+<blockquote>
+<p><strong>Educational prototype. Fictional data only. Not a clinical tool. No diagnoses. Clinician review
+always required.</strong></p>
+</blockquote>
+<p>This portfolio documents the prompt-design work for all four agents: the v1 → v2 → v3 evolution, the
+before/after reasoning, the failure modes each change fixed, the few-shot exemplar strategy, the
+output-schema contract, and the safety guardrails. Full prompt files live in
+<a href="../prompts"><code>prompts/&lt;agent&gt;/</code></a>; this document embeds the short versions and excerpts the long one.</p>
+<h2>Method: why three versions</h2>
+<table>
+<thead>
+<tr>
+<th>Version</th>
+<th>Theme</th>
+<th>Typically fixes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>v1</strong></td>
+<td><em>Make it work</em> — plain role + task</td>
+<td>vague, prose output, no schema, occasional diagnosis, no citations</td>
+</tr>
+<tr>
+<td><strong>v2</strong></td>
+<td><em>Make it safe &amp; structured</em> — JSON, safety rules, cite-or-omit</td>
+<td>parseable; diagnosis suppressed; weak on uncertainty/conflicts</td>
+</tr>
+<tr>
+<td><strong>v3</strong></td>
+<td><em>Make it robust</em> — few-shot, self-check, calibrated confidence, negative-space</td>
+<td>handles edge cases, surfaces gaps/conflicts, traceability ≈ 1.0</td>
+</tr>
+</tbody>
+</table>
+<h2>Cross-agent technique catalogue</h2>
+<table>
+<thead>
+<tr>
+<th>Technique</th>
+<th>Agents</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Role / persona prompting</td>
+<td>all</td>
+<td>scope behavior, non-diagnostic stance</td>
+</tr>
+<tr>
+<td>Rubric-in-prompt</td>
+<td>triage</td>
+<td>consistent urgency judgments</td>
+</tr>
+<tr>
+<td>Cite-or-omit grounding</td>
+<td>ehr, anamnesis, synthesis</td>
+<td>kill hallucination; force traceability</td>
+</tr>
+<tr>
+<td>Verbatim-copy</td>
+<td>ehr</td>
+<td>prevent dose/lab drift</td>
+</tr>
+<tr>
+<td>Source-typing (<code>reported_by</code>)</td>
+<td>anamnesis</td>
+<td>don't over-trust self-report</td>
+</tr>
+<tr>
+<td>Negative-space prompting</td>
+<td>all (<code>data_gaps</code>)</td>
+<td>"absence is information"</td>
+</tr>
+<tr>
+<td>Few-shot exemplar</td>
+<td>synthesis</td>
+<td>lock tone + citation style</td>
+</tr>
+<tr>
+<td>Verify-before-emit</td>
+<td>synthesis</td>
+<td>catch uncited claims / diagnosis language</td>
+</tr>
+<tr>
+<td>Constrained framing vocabulary</td>
+<td>synthesis</td>
+<td>"factors to consider", never diagnoses</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1>Agent 1 — Alert Triage Agent</h1>
+<p><strong>Output schema summary</strong> (<code>schemas/triage_output.schema.json</code>): <code>urgency_level</code>
+(routine/monitor/urgent/emergent), <code>urgency_rationale</code>, <code>alert_validity</code>
+(likely_valid/possible_artifact/insufficient_data), <code>validity_rationale</code>, <code>retrieval_plan</code>
+(<code>ehr_focus</code>, <code>anamnesis_focus</code>), <code>missing_data_flags</code>, <code>safety_flags</code>, <code>confidence</code>, <code>citations</code>.</p>
+<p><strong>Safety guardrails:</strong> never diagnose (urgency ≠ diagnosis); when in doubt triage up; an artifact is
+flagged but still triggers retrieval; if it can't judge, output <code>insufficient_data</code>.</p>
+<h3>v1 (naive)</h3>
+<pre><code>You are a triage assistant for a remote patient monitoring system. You will be given an alert from a
+patient's monitoring device. Look at the alert and tell me how serious it is and what might be going
+on. Then say what information would help.
+</code></pre>
+<h3>v2 (structured + safety)</h3>
+<p>Adds a JSON contract, an urgency rubric, and the no-diagnosis rule (see <code>prompts/alert_triage_agent/v2.md</code>).</p>
+<h3>v3 (production, excerpt — full text in <code>prompts/alert_triage_agent/v3.md</code>)</h3>
+<pre><code>Absolute rules
+1. You do not diagnose. urgency_level is prioritization ONLY ... Never name a disease as the cause.
+2. When in doubt, triage UP, and say why.
+3. An artifact is not dismissable ... STILL produce a retrieval plan.
+4. If you cannot judge urgency ... output `insufficient_data` ... Do not guess.
+...
+Do not be anchored by the device's severity_raw — it is a crude device rating, not a clinical judgment.
+</code></pre>
+<p><strong>Before/after.</strong> v1 returned prose like <em>"This looks pretty serious, probably high blood pressure
+issues"</em> — unparseable and a soft diagnosis. v2 made it JSON and banned diagnosis. v3 added artifact
+/ insufficient-data handling and the "ignore device severity" rule.</p>
+<p><strong>Failure-mode analysis.</strong> The key v2 failure was <em>anchoring to <code>severity_raw</code></em>: a heart-failure
+weight trend rated "medium" by the device was under-triaged. v3's explicit instruction to ignore the
+raw severity makes the agent escalate Scenario 3 to <code>urgent</code> on the basis of the trend itself.</p>
+<hr />
+<h1>Agent 2 — EHR Retrieval Agent</h1>
+<p><strong>Output schema summary</strong> (<code>schemas/ehr_retrieval_output.schema.json</code>): <code>relevant_diagnoses</code>,
+<code>relevant_medications</code>, <code>relevant_labs</code>, <code>relevant_allergies</code>, <code>relevant_visit_notes</code> (each item =
+<code>source_id</code> + verbatim <code>content</code> + <code>relevance_reason</code>), plus required <code>data_gaps</code> and
+<code>retrieval_confidence</code>.</p>
+<p><strong>Safety guardrails:</strong> copy values verbatim (no rounding/paraphrase); include only items present in
+the record (never infer); list relevant-but-absent data as <code>data_gaps</code>.</p>
+<h3>v1 (naive)</h3>
+<pre><code>You are an assistant that reads a patient's electronic health record. Given an alert, summarize the
+patient's medical history that is relevant to the alert so a doctor can understand the situation.
+</code></pre>
+<h3>v2 (structured + grounding)</h3>
+<p>Adds JSON, mandatory <code>source_id</code>, per-item relevance reason (see <code>prompts/ehr_retrieval_agent/v2.md</code>).</p>
+<h3>v3 (production, excerpt)</h3>
+<pre><code>1. Cite or omit. Every item ... MUST carry its real source_id ... never invent or infer ...
+2. Copy values VERBATIM. Do not round, paraphrase, or &quot;correct&quot; a dose, a lab value, or a date.
+4. Negative space is required. In data_gaps, list relevant data that SHOULD exist ... but is absent.
+</code></pre>
+<p><strong>Before/after.</strong> v1 wrote a flowing narrative and once paraphrased a dose ("a moderate dose of
+lisinopril") with no sources. v2 forced source ids and verbatim copying. v3 added the required
+<code>data_gaps</code> array and per-metric relevance heuristics.</p>
+<p><strong>Failure-mode analysis.</strong> v2 <em>silently skipped missing data</em> — it never noted the absent recent
+potassium before an ACE-inhibitor BP alert, so the synthesis agent couldn't flag it. The
+negative-space requirement in v3 surfaces those gaps (Scenario 1 absent potassium; Scenario 3 stale
+potassium/creatinine).</p>
+<p><strong>Working with retrieved LangChain Documents (RAG).</strong> In the retrieval-augmented setup, the EHR
+Retrieval Agent no longer sees the whole chart as prose — it receives the <strong>top-k retrieved LangChain
+<code>Document</code> objects</strong> produced by a genuine LangChain RAG pipeline
+(<a href="../langchain_pipeline"><code>langchain_pipeline/</code></a>): EHR records → <code>Document</code>s →
+<code>RecursiveCharacterTextSplitter</code> → local <code>all-MiniLM-L6-v2</code> embeddings → <strong>FAISS</strong> → retriever
+(default <code>k=5</code>). The clinical question is built from the <strong>Alert Triage Agent's</strong>
+<code>retrieval_plan.ehr_focus</code>, the retriever returns the most relevant chunks (each <code>Document</code> carrying
+its <code>source_id</code>, <code>source_type</code>, and <code>patient_id</code> in <code>metadata</code>), and those Documents are attached to
+the EHR agent's context (<code>context["ehr_retrieval_documents"]</code>) as its grounding evidence. The agent's
+prompt then instructs it to use <strong>only</strong> those retrieved Documents and to <strong>cite only their source
+ids</strong> (cite-or-omit) — which is exactly what keeps retrieval grounded and the downstream brief
+traceable. This is a real RAG flow (retrieve → ground → cite) with <strong>local embeddings and no API
+key</strong>; if the LangChain stack is absent it degrades to the pure-Python TF-IDF retriever
+(<a href="../rag_retrieval.py"><code>rag_retrieval.py</code></a>). Retrieval quality (Precision@k / Recall@k) is measured in
+<a href="evaluation_report.md"><code>evaluation_report.md</code></a>.</p>
+<hr />
+<h1>Agent 3 — Anamnesis Agent</h1>
+<p><strong>Output schema summary</strong> (<code>schemas/anamnesis_output.schema.json</code>): <code>relevant_symptoms</code>,
+<code>adherence_findings</code>, <code>lifestyle_factors</code>, <code>relevant_family_history</code>, <code>patient_concerns</code> (each item =
+<code>source_id</code> + <code>content</code> + <code>reported_by</code> + <code>relevance_reason</code>), <code>extraction_completeness</code>
+(present/absent/not_collected per domain), <code>data_gaps</code>.</p>
+<p><strong>Safety guardrails:</strong> everything tagged self-report; symptoms never converted to diagnoses; do not
+fabricate to fill a gap; preserve the patient's own words for concerns.</p>
+<h3>v1 (naive)</h3>
+<pre><code>You are an assistant that reads the patient's interview notes. Pull out the important symptoms and
+history related to the alert and explain what they suggest.
+</code></pre>
+<h3>v2 (structured + self-report typing)</h3>
+<p>Adds JSON, <code>reported_by</code> tags, source ids, "symptoms stay symptoms" (see <code>prompts/anamnesis_agent/v2.md</code>).</p>
+<h3>v3 (production, excerpt)</h3>
+<pre><code>5. Handle absence explicitly ... do NOT fabricate to fill a gap. If the whole anamnesis was not
+   collected, return empty arrays and say so clearly.
+Special case: anamnesis not collected -&gt; all arrays empty, every completeness field &quot;not_collected&quot;,
+   first data_gaps entry states clearly what cannot be assessed.
+</code></pre>
+<p><strong>Before/after.</strong> v1 editorialized self-report into fact ("the patient is clearly developing heart
+failure") — both a diagnosis and a loss of provenance. v2 added self-report tagging and the
+no-diagnosis rule. v3 added explicit not-collected handling and the completeness map.</p>
+<p><strong>Failure-mode analysis.</strong> The critical v2 failure: in Scenario 4 the anamnesis was <em>not collected</em>,
+and v2 <strong>hallucinated plausible symptoms and adherence</strong> to fill the template — the single most
+dangerous behavior for this project. v3's not-collected block makes the agent return empty arrays and
+flag the gap, with zero fabrication. This is also the basis of adversarial Test C (vague symptom),
+where the agent preserves <em>"I feel a bit off"</em> verbatim and flags it non-specific.</p>
+<hr />
+<h1>Agent 4 — Synthesis Agent (most safety-critical)</h1>
+<p><strong>Output schema summary</strong> (<code>schemas/clinical_context_brief.schema.json</code>): <code>alert_summary</code>,
+<code>patient_snapshot</code>, <code>contextual_findings</code>, <code>possible_contributing_factors</code> (factor +
+supporting_evidence + citations + uncertainty), <code>data_conflicts</code>, <code>missing_data_and_uncertainty</code>,
+<code>suggested_clinician_considerations</code>, <code>urgency_assessment</code>, <code>safety_disclaimer</code>, <code>traceability_index</code>,
+<code>overall_confidence</code>. The human-readable brief renders these as the 8 sections: Alert Summary,
+Patient Snapshot, Contextual Analysis, Risk Assessment, Recommended Actions, Uncertainties and Gaps,
+Sources Used, Safety Disclaimer.</p>
+<p><strong>Safety guardrails:</strong> no diagnosis ("factors to consider" only, banned-phrasing list); cite or omit;
+surface conflicts without resolving them; required uncertainty + disclaimer; considerations not
+orders; keep the higher urgency.</p>
+<h3>v1 (naive)</h3>
+<pre><code>You are a clinical assistant. Given the triage result, the EHR information, and the patient interview
+findings, write a clear summary for the doctor explaining what is going on with the patient and what
+they should do.
+</code></pre>
+<h3>v2 (structured + no-diagnosis + citations)</h3>
+<p>Adds JSON, "factors to consider" framing, per-claim citations (see <code>prompts/synthesis_agent/v2.md</code>).</p>
+<h3>v3 (production, excerpt — full text in <code>prompts/synthesis_agent/v3.md</code>)</h3>
+<pre><code>2. Cite or omit. EVERY clinical claim ... MUST carry &gt;=1 source_id ... Build a traceability_index ...
+3. Surface conflicts; never silently resolve them ... cite BOTH sources and do NOT pick a winner.
+4. Uncertainty and missing data are required output.
+Verify-before-emit: walk every finding/factor/conflict — does each have a citation that exists in the
+   inputs and in traceability_index? ... Scan for any sentence that asserts a diagnosis ... re-phrase
+   or delete.
+</code></pre>
+<p><strong>Few-shot exemplar strategy.</strong> The gold briefs in <code>scenarios/*.json</code> act as format exemplars: when
+generating a synthesis output manually, the gold brief for a similar scenario is shown to the model to
+lock the citation style ("[EHR.med.001]"), the hedged "factor to consider" voice, and the required
+sections. This is classic few-shot format conditioning rather than answer-leaking, because each
+scenario's data differs.</p>
+<p><strong>Few-shot example (abridged, from Scenario 1).</strong></p>
+<pre><code>INPUT (abridged): triage{urgency:urgent}, ehr{lisinopril last refill 2026-05-02, 30-day supply},
+                  anamnesis{&quot;ran out of my BP pill ~1 week ago&quot;}
+OUTPUT (abridged): possible_contributing_factors:[{
+   factor:&quot;Possible contribution from an antihypertensive medication lapse&quot;,
+   citations:[&quot;ANAMNESIS.adherence.1&quot;,&quot;EHR.med.001&quot;,&quot;RPM.alert&quot;],
+   uncertainty:&quot;Self-reported lapse not confirmed against pharmacy data ...&quot; }]
+</code></pre>
+<p><strong>Before/after.</strong> v1 produced <em>"The patient is in acute heart failure exacerbation; start IV
+diuresis."</em> — a diagnosis <strong>and</strong> a treatment order. v2's "factors to consider" framing + cite-or-omit
+removed both and made claims traceable (safety FAIL → PASS).</p>
+<p><strong>Failure-mode analysis.</strong> v2's residual failure was on <strong>conflicts</strong>: in Scenario 5 it <em>silently
+chose</em> the EHR medication list over the patient's report, hiding the most important finding. v3's
+required <code>data_conflicts</code> + the verify-before-emit self-check force the contradiction to the surface
+with both sources cited, and drive the measured hallucination rate to 0.0 and traceability to 1.0.</p>
+<hr />
+<h2>Few-Shot Examples (≥3 per agent, including an edge case)</h2>
+<p>Per the brief (§8.1.2), each agent has at least three input → expected-output examples, including one
+edge case. These are <strong>abridged</strong> for readability; full versions live in the scenarios and
+<code>agent_outputs/</code>.</p>
+<h3>Alert Triage Agent</h3>
+<ul>
+<li><strong>Example 1 (normal).</strong> IN: <code>BP 182/104, limit 160/100, baseline 126/76</code>. OUT: <code>urgency=urgent</code>,
+  <code>validity=likely_valid</code>, retrieval_plan asks for antihypertensives + renal labs + adherence.</li>
+<li><strong>Example 2 (normal).</strong> IN: <code>HR 142 during device-logged cycling, baseline 68</code>. OUT: <code>urgency=routine</code>,
+  <code>validity=likely_valid</code>, rationale = activity-explained; plan asks for cardiac history + caffeine.</li>
+<li><strong>Example 3 (edge — implausible reading).</strong> IN: <code>SpO2 38% but patient conversant, no distress</code>.
+  OUT: <code>validity=possible_artifact</code>, urgency conservative, <strong>still</strong> emits a retrieval_plan and a
+  safety flag (do not silently dismiss). <em>(If a reading were both extreme and plausible, urgency
+  would be <code>emergent</code> → official </em><em>Critical</em><em> → immediate escalation.)</em></li>
+</ul>
+<h3>EHR Retrieval Agent</h3>
+<ul>
+<li><strong>Example 1 (normal).</strong> IN: BP alert + plan. OUT: returns <code>EHR.dx.001</code> (hypertension),
+  <code>EHR.med.001</code> (lisinopril + refill date), renal labs — each verbatim with <code>source_id</code> + reason.</li>
+<li><strong>Example 2 (normal).</strong> IN: glucose alert + plan. OUT: returns diabetes dx, insulin/metformin,
+  HbA1c; leaves unrelated chart items out.</li>
+<li><strong>Example 3 (edge — sparse record).</strong> IN: newly enrolled patient, labs pending. OUT: returns the
+  few items that exist <strong>and</strong> a <code>data_gaps</code> entry ("renal/lipid labs pending; no baseline") — flags
+  absence instead of inventing.</li>
+</ul>
+<h3>Anamnesis Agent</h3>
+<ul>
+<li><strong>Example 1 (normal).</strong> IN: BP-lapse interview. OUT: <code>adherence_findings</code> = "ran out of BP pill ~1
+  week ago", tagged <code>reported_by: patient</code>; no diagnosis.</li>
+<li><strong>Example 2 (normal).</strong> IN: heart-failure check-in. OUT: symptoms "SOB on stairs", "ankles swollen"</li>
+<li>salty-diet lifestyle factor, all self-report.</li>
+<li><strong>Example 3 (edge — not collected).</strong> IN: patient did not answer the call. OUT: all arrays empty,
+  <code>extraction_completeness</code> all <code>not_collected</code>, first <code>data_gap</code> states the anamnesis was not
+  collected — <strong>zero fabrication</strong>.</li>
+</ul>
+<h3>Synthesis Agent</h3>
+<ul>
+<li><strong>Example 1 (normal).</strong> IN: triage+EHR+anamnesis for the BP lapse. OUT: brief with a <em>factor to
+  consider</em> (medication lapse) cited to <code>ANAMNESIS.adherence.1</code> + <code>EHR.med.001</code>, missing-data flag,
+  disclaimer.</li>
+<li><strong>Example 2 (normal).</strong> IN: the heart-failure trend. OUT: trend-based factor cited across weight
+  readings + symptoms; urgency kept at the higher level; uncertainty noted.</li>
+<li><strong>Example 3 (edge — conflicting sources).</strong> IN: EHR lists metformin active, patient says stopped.
+  OUT: a <code>data_conflicts</code> entry citing <strong>both</strong> sources, explicitly <strong>not</strong> resolved, routed to
+  medication reconciliation.</li>
+</ul>
+<hr />
+<h2>Urgency Taxonomy Mapping (official COP-3442 brief)</h2>
+<p>The official brief uses <strong>Critical / Urgent / Routine / Informational</strong>. The project's internal
+schema enum is kept unchanged (to keep all stored outputs, gold standards, and evaluation valid); the
+rendered brief shows the official label, mapped as:</p>
+<table>
+<thead>
+<tr>
+<th>Internal (schema enum)</th>
+<th>Official (brief taxonomy)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>emergent</code></td>
+<td><strong>Critical</strong></td>
+</tr>
+<tr>
+<td><code>urgent</code></td>
+<td><strong>Urgent</strong></td>
+</tr>
+<tr>
+<td><code>routine</code></td>
+<td><strong>Routine</strong></td>
+</tr>
+<tr>
+<td><code>monitor</code></td>
+<td><strong>Informational</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The mapping is implemented in <code>pipeline.official_urgency()</code> and shown in §4 (Risk Assessment) of every
+rendered brief.</p>
+<hr />
+<h2>Model Parameter Rationale</h2>
+<ul>
+<li><strong>No-API / manual mode stores Claude outputs for reproducibility.</strong> Because outputs are generated
+  once and replayed, the demo, brief, and evaluation are byte-identical on every run — ideal for
+  grading.</li>
+<li><strong>For a live Claude API later, prefer a low temperature (≈ 0.0–0.2)</strong> for these structured
+  clinical-context tasks: the goal is reliable, schema-valid JSON with calibrated language, not
+  creative variation.</li>
+<li><strong><code>max_tokens</code> should be high enough to fit the full JSON brief but constrained</strong> to discourage
+  rambling or fabricated padding.</li>
+<li><strong>Deterministic settings support evaluation repeatability</strong> — the same input should yield the same
+  structured output so metric deltas reflect prompt changes, not sampling noise.</li>
+<li><strong>Safety-critical domains prioritize consistency over creativity</strong>; low-temperature, schema-enforced
+  decoding is the appropriate default here.</li>
+</ul>
+<hr />
+<h2>Summary of measured impact</h2>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>v1</th>
+<th>v3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Output parseable as JSON</td>
+<td>no</td>
+<td>yes (schema-valid)</td>
+</tr>
+<tr>
+<td>Diagnosis language</td>
+<td>present (unsafe)</td>
+<td>absent (safety PASS)</td>
+</tr>
+<tr>
+<td>Treatment orders</td>
+<td>present (unsafe)</td>
+<td>absent (considerations only)</td>
+</tr>
+<tr>
+<td>Claims cited</td>
+<td>rarely</td>
+<td>every claim (traceability 1.0)</td>
+</tr>
+<tr>
+<td>Hallucination rate</td>
+<td>high/unmeasured</td>
+<td>0.0 on tested scenarios</td>
+</tr>
+<tr>
+<td>Conflicts surfaced</td>
+<td>no</td>
+<td>yes (Scenario 5)</td>
+</tr>
+<tr>
+<td>Fabrication on empty input</td>
+<td>yes (Scenario 4)</td>
+<td>no (flagged not-collected)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>All examples use fictional data and illustrate prompt behavior only; nothing here is medical advice.</p>
+</blockquote>
+<div class="disclaimer-foot">ClinicalBridge - educational prototype. All data is fictional. Not a real clinical tool. No diagnoses. Clinician review always required.</div>
+</body></html>

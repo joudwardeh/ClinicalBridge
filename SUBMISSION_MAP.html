@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>ClinicalBridge - Submission Map</title><style>
+@page { size: A4; margin: 18mm 16mm; }
+* { box-sizing: border-box; }
+body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 11pt; line-height: 1.5; color: #1a1a1a; margin: 0; }
+h1 { font-size: 20pt; border-bottom: 2px solid #2c5f8a; padding-bottom: 6px; color: #1d3a52; }
+h2 { font-size: 15pt; margin-top: 22px; border-bottom: 1px solid #ccc; padding-bottom: 3px; color: #1d3a52; }
+h3 { font-size: 12.5pt; margin-top: 16px; color: #2c5f8a; }
+h4 { font-size: 11pt; margin-top: 12px; color: #333; }
+p, li { font-size: 11pt; }
+a { color: #1d4e79; text-decoration: none; }
+code { background: #f3f3f3; padding: 1px 4px; border-radius: 3px; font-family: 'Consolas','Courier New',monospace; font-size: 9.5pt; }
+pre { background: #f6f8fa; border: 1px solid #ddd; border-radius: 5px; padding: 10px 12px; font-family: 'Consolas','Courier New',monospace; font-size: 9pt; line-height: 1.4; white-space: pre-wrap; word-wrap: break-word; }
+pre code { background: none; padding: 0; }
+blockquote { border-left: 4px solid #2c5f8a; background: #eef4f9; margin: 12px 0; padding: 8px 14px; color: #333; }
+table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 9.5pt; page-break-inside: avoid; }
+th, td { border: 1px solid #bbb; padding: 5px 8px; text-align: left; vertical-align: top; }
+th { background: #2c5f8a; color: #fff; }
+tr:nth-child(even) td { background: #f4f7fa; }
+hr { border: none; border-top: 1px solid #ccc; margin: 18px 0; }
+h1, h2, h3, h4 { page-break-after: avoid; }
+ul, ol { padding-left: 22px; }
+.disclaimer-foot { margin-top: 24px; border-top: 1px solid #ccc; padding-top: 8px; font-size: 8.5pt; color: #777; }
+</style></head>
+<body>
+<h1>Submission Map — ClinicalBridge</h1>
+<p><strong>Project:</strong> ClinicalBridge: Bridging the Clinical Context Gap<br />
+<strong>Course:</strong> COP-3442 Prompt Engineering<br />
+<strong>University:</strong> Bahçeşehir University<br />
+<strong>Department:</strong> Artificial Intelligence Engineering Department<br />
+<strong>Professor:</strong> Binnur Kurt<br />
+<strong>Group Members:</strong>
+- Kenan Eliyan — 2286181
+- Rama Tamimi — 2285460
+- Joud Wardeh — 2282493</p>
+<blockquote>
+<p><strong>Educational prototype. All data is fictional. Not a real clinical tool. No diagnoses. Clinician
+review is always required.</strong></p>
+</blockquote>
+<p>This document maps each capstone requirement to its location in the repository so it can be reviewed
+quickly.</p>
+<hr />
+<h2>1. Project Overview</h2>
+<p>ClinicalBridge is an <strong>educational proof-of-concept</strong> built for COP-3442 Prompt Engineering. It uses
+<strong>simulated data only</strong> — every patient, alert, lab, and symptom is fictional. It is a <strong>multi-agent
+system</strong> (Alert Triage, EHR Retrieval, Anamnesis, and Synthesis agents, coordinated by an
+orchestrator) that <strong>connects three data sources — EHR, RPM, and anamnesis</strong> — when a remote-monitoring
+alert fires. From those sources it <strong>produces a structured Clinical Context Brief</strong> in which every
+claim is traceable to its source, uncertainty and missing data are surfaced, and conflicts are flagged.
+It is <strong>not a real clinical tool</strong>: it does not diagnose, it issues no orders, and it is designed to
+support — never replace — clinician judgment.</p>
+<hr />
+<h2>2. Core Deliverables Map</h2>
+<table>
+<thead>
+<tr>
+<th>Required Deliverable</th>
+<th>File or Folder</th>
+<th>What it Contains</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Project Report</strong></td>
+<td><a href="reports/final_project_report.md"><code>reports/final_project_report.md</code></a></td>
+<td>Full written report: problem, architecture, dataset, prompt methodology, evaluation, reflection, limitations</td>
+</tr>
+<tr>
+<td><strong>Working Prototype</strong></td>
+<td><a href="main.py"><code>main.py</code></a>, <a href="pipeline.py"><code>pipeline.py</code></a>, <a href="notebook/clinicalbridge_prototype.ipynb"><code>notebook/clinicalbridge_prototype.ipynb</code></a></td>
+<td>CLI entry point, shared core pipeline/orchestrator, and the runnable notebook</td>
+</tr>
+<tr>
+<td><strong>Simulated Dataset</strong></td>
+<td><a href="data"><code>data/</code></a>, <a href="scenarios"><code>scenarios/</code></a></td>
+<td>10 fictional patients (EHR + RPM + anamnesis) and 5 self-contained scenarios with gold briefs</td>
+</tr>
+<tr>
+<td><strong>Prompt Engineering Portfolio</strong></td>
+<td><a href="reports/prompt_engineering_portfolio.md"><code>reports/prompt_engineering_portfolio.md</code></a>, <a href="prompts"><code>prompts/</code></a></td>
+<td>v1/v2/v3 prompt iteration with before/after analysis; the actual system prompts + changelogs</td>
+</tr>
+<tr>
+<td><strong>Evaluation Report</strong></td>
+<td><a href="reports/evaluation_report.md"><code>reports/evaluation_report.md</code></a>, <a href="evaluation"><code>evaluation/</code></a></td>
+<td>Realistic results, adversarial table, limitations; the 7-metric scoring code</td>
+</tr>
+<tr>
+<td><strong>Demonstration</strong></td>
+<td><a href="docs/07_demo_walkthrough.md"><code>docs/07_demo_walkthrough.md</code></a>, <a href="outputs/demo_scenario_1_transcript.md"><code>outputs/demo_scenario_1_transcript.md</code></a>, <a href="outputs/demo_scenario_3_transcript.md"><code>outputs/demo_scenario_3_transcript.md</code></a>, <a href="notebook/clinicalbridge_prototype.ipynb"><code>notebook/clinicalbridge_prototype.ipynb</code></a></td>
+<td>Demo script + speaking notes, saved demo transcripts, and the annotated notebook</td>
+</tr>
+<tr>
+<td><strong>Safety and Ethics</strong></td>
+<td><a href="README.md"><code>README.md</code></a>, <a href="reports/final_project_report.md"><code>reports/final_project_report.md</code></a>, every Clinical Context Brief</td>
+<td>Disclaimers, ethical considerations and limitations, and the safety disclaimer embedded in each brief</td>
+</tr>
+<tr>
+<td><strong>Architecture Diagrams</strong></td>
+<td><a href="docs/09_architecture_diagrams.md"><code>docs/09_architecture_diagrams.md</code></a></td>
+<td>Mermaid diagrams: system architecture, data flow, provider design, prompt iteration, evaluation pipeline</td>
+</tr>
+<tr>
+<td><strong>Manual Claude Workflow</strong></td>
+<td><a href="MANUAL_CLAUDE_WORKFLOW.md"><code>MANUAL_CLAUDE_WORKFLOW.md</code></a></td>
+<td>How Claude is used manually as the LLM engine without an API key</td>
+</tr>
+<tr>
+<td><strong>Adversarial Testing</strong></td>
+<td><a href="ADVERSARIAL_TESTS.md"><code>ADVERSARIAL_TESTS.md</code></a>, <a href="adversarial"><code>adversarial/</code></a></td>
+<td>Three safe-failure tests with expected behavior, plus the input fixtures</td>
+</tr>
+<tr>
+<td><strong>LangChain RAG (EHR retrieval backend)</strong></td>
+<td><a href="langchain_pipeline"><code>langchain_pipeline/</code></a>, <a href="pipeline.py"><code>pipeline.py</code></a></td>
+<td><strong>Genuine LangChain RAG</strong>: EHR -&gt; <code>Document</code> objects -&gt; <code>RecursiveCharacterTextSplitter</code> -&gt; local <code>all-MiniLM-L6-v2</code> embeddings -&gt; <strong>FAISS</strong> -&gt; configurable top-k retriever (<code>--langchain-rag-demo</code>); integrated behind the EHR Retrieval Agent. Local only, no API keys</td>
+</tr>
+<tr>
+<td><strong>RAG / Memory / Tools (M6/M7 concepts)</strong></td>
+<td><a href="rag_retrieval.py"><code>rag_retrieval.py</code></a>, <a href="session_memory.py"><code>session_memory.py</code></a>, <a href="tools.py"><code>tools.py</code></a>, <a href="memory"><code>memory/</code></a></td>
+<td>Pure-Python TF-IDF EHR retrieval (<code>--rag-demo</code>) — the documented fallback backend; session audit memory; and agent tool wrappers</td>
+</tr>
+<tr>
+<td><strong>Brief alignment</strong> (few-shot, taxonomy, escalation, bias, params, refs)</td>
+<td><a href="reports/prompt_engineering_portfolio.md"><code>reports/prompt_engineering_portfolio.md</code></a>, <a href="reports/final_project_report.md"><code>reports/final_project_report.md</code></a>, <a href="reports/evaluation_report.md"><code>reports/evaluation_report.md</code></a>, <a href="ADVERSARIAL_TESTS.md"><code>ADVERSARIAL_TESTS.md</code></a>, <a href="pipeline.py"><code>pipeline.py</code></a></td>
+<td>≥3 few-shot examples/agent; official urgency mapping (Critical/Urgent/Routine/Informational); critical-alert escalation; Bias Awareness; expanded References; Model Parameter Rationale</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Note:</strong> EHR retrieval uses a <strong>genuine LangChain RAG pipeline</strong> (local HuggingFace embeddings +
+FAISS, no API key); it degrades to the local TF-IDF retriever if the LangChain stack is not
+installed. The four-agent orchestration still runs in <strong>no-API stored-output mode</strong> and needs no
+API key — LangChain replaces only the retrieval backend, behind an abstraction.</p>
+</blockquote>
+<h3>PDF versions (for final submission)</h3>
+<p>Print-ready <strong>PDF</strong> versions of the written deliverables are included alongside the Markdown:</p>
+<table>
+<thead>
+<tr>
+<th>Document</th>
+<th>PDF</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Final Project Report</td>
+<td><code>reports/final_project_report.pdf</code></td>
+</tr>
+<tr>
+<td>Prompt Engineering Portfolio</td>
+<td><code>reports/prompt_engineering_portfolio.pdf</code></td>
+</tr>
+<tr>
+<td>Evaluation Report</td>
+<td><code>reports/evaluation_report.pdf</code></td>
+</tr>
+<tr>
+<td>Submission Map</td>
+<td><code>SUBMISSION_MAP.pdf</code></td>
+</tr>
+</tbody>
+</table>
+<p>The Markdown files remain the source of truth; the PDFs (and matching <code>.html</code> files used to generate
+them) are provided for easy reading/printing. To regenerate a PDF, open the <code>.html</code> file in a browser
+and use <strong>Print → Save as PDF</strong>.</p>
+<hr />
+<h2>3. How to Run</h2>
+<pre><code class="language-bash">pip install -r requirements.txt
+python main.py                 # full pipeline: scorecard + sample brief + adversarial safety tests
+python main.py --demo 1        # clean step-by-step demo walkthrough for Scenario 1
+python main.py --demo 3        # clean step-by-step demo walkthrough for Scenario 3
+python main.py --rag-demo 1    # local TF-IDF EHR retrieval + session-memory record (fallback backend)
+python main.py --langchain-rag-demo 1   # GENUINE LangChain RAG: Documents + FAISS + local embeddings
+jupyter notebook notebook/clinicalbridge_prototype.ipynb   # the annotated notebook (Restart &amp; Run All)
+</code></pre>
+<p>The only hard dependency for the core pipeline is <code>jsonschema</code>; the notebook additionally uses
+<code>jupyter</code>. The genuine LangChain RAG backend adds <code>langchain*</code>, <code>faiss-cpu</code>, and
+<code>sentence-transformers</code> (all local — <strong>no API key</strong>), and degrades gracefully if they are absent.</p>
+<hr />
+<h2>4. Recommended Demo Path</h2>
+<p>Use these two contrasting scenarios:</p>
+<ul>
+<li><strong>Scenario 1 — Missed Medication.</strong> Shows <strong>cross-source reasoning</strong>: the system connects the RPM
+  blood-pressure alert, the EHR medication/refill data, and the patient-reported lapse in the
+  anamnesis into one traceable picture.</li>
+<li><strong>Scenario 3 — Silent Deterioration.</strong> Shows <strong>trend detection and escalation beyond raw device
+  severity</strong>: no single reading is dramatic, but the system reasons over a multi-day weight/SpO2 trend
+  and escalates urgency despite the device rating it only "medium."</li>
+</ul>
+<p>Together they demonstrate both the "assemble a clear story" case and the "catch what no single alert
+reveals" case. Run <code>python main.py --demo 1</code> and <code>python main.py --demo 3</code> (add <code>--save-transcript</code>
+to regenerate the saved transcripts in <code>outputs/</code>).</p>
+<hr />
+<h2>5. Important Safety Statement</h2>
+<ul>
+<li><strong>All data is fictional.</strong> No real patients and no real PHI.</li>
+<li><strong>Not for real clinical use.</strong> ClinicalBridge is an educational prototype with no regulatory clearance.</li>
+<li><strong>No diagnoses.</strong> Output is framed strictly as <em>factors to consider</em>.</li>
+<li><strong>No treatment orders.</strong> The brief ends in clinician <em>considerations</em>, never orders or prescriptions.</li>
+<li><strong>Clinician review is always required.</strong> A human stays in the loop at all times.</li>
+<li><strong>High evaluation scores reflect controlled, simulated data — not clinical validation.</strong> They show
+  the prompts can behave correctly and safely on clean cases, not that the system works on real
+  patients.</li>
+</ul>
+<hr />
+<h2>6. Final Submission Checklist</h2>
+<p>Include the following in the submission zip:</p>
+<ul>
+<li>[ ] <code>README.md</code></li>
+<li>[ ] <code>SUBMISSION_MAP.md</code></li>
+<li>[ ] <code>MANUAL_CLAUDE_WORKFLOW.md</code></li>
+<li>[ ] <code>ADVERSARIAL_TESTS.md</code></li>
+<li>[ ] <code>main.py</code></li>
+<li>[ ] <code>pipeline.py</code></li>
+<li>[ ] <code>langchain_pipeline/</code></li>
+<li>[ ] <code>rag_retrieval.py</code></li>
+<li>[ ] <code>session_memory.py</code></li>
+<li>[ ] <code>tools.py</code></li>
+<li>[ ] <code>memory/</code></li>
+<li>[ ] <code>requirements.txt</code></li>
+<li>[ ] <code>notebook/</code></li>
+<li>[ ] <code>data/</code></li>
+<li>[ ] <code>scenarios/</code></li>
+<li>[ ] <code>schemas/</code></li>
+<li>[ ] <code>prompts/</code></li>
+<li>[ ] <code>agent_outputs/</code></li>
+<li>[ ] <code>evaluation/</code></li>
+<li>[ ] <code>adversarial/</code></li>
+<li>[ ] <code>outputs/</code></li>
+<li>[ ] <code>docs/</code></li>
+<li>[ ] <code>reports/</code></li>
+</ul>
+<p>PDF versions of the reports (included for submission):</p>
+<ul>
+<li>[ ] <code>reports/final_project_report.pdf</code></li>
+<li>[ ] <code>reports/prompt_engineering_portfolio.pdf</code></li>
+<li>[ ] <code>reports/evaluation_report.pdf</code></li>
+<li>[ ] <code>SUBMISSION_MAP.pdf</code></li>
+</ul>
+<blockquote>
+<p>Tip: exclude generated cache folders (<code>__pycache__/</code>, <code>.ipynb_checkpoints/</code>) from the zip — they are
+not part of the submission.</p>
+</blockquote>
+<div class="disclaimer-foot">ClinicalBridge - educational prototype. All data is fictional. Not a real clinical tool. No diagnoses. Clinician review always required.</div>
+</body></html>

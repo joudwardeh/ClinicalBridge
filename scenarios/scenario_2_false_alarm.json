@@ -1,0 +1,118 @@
+{
+  "scenario_id": 2,
+  "name": "False Alarm",
+  "patient_id": "P002",
+  "teaching_point": "A real, trustworthy reading triggers an alert, but the context shows a benign, expected cause (exercise + caffeine) and the value normalized quickly. Tests whether the system can DE-escalate safely without dismissing the data, and avoids inventing pathology.",
+  "disclaimer": "FICTIONAL DATA ONLY. Educational prototype. Not a diagnosis.",
+
+  "rpm_alert": {
+    "alert_id": "ALERT-P002-001",
+    "patient_id": "P002",
+    "timestamp": "2026-06-20T17:30:00",
+    "metric": "heart_rate",
+    "value": 142,
+    "unit": "bpm",
+    "threshold": { "direction": "high", "limit": 130 },
+    "baseline": 68,
+    "severity_raw": "medium",
+    "device": "Consumer smartwatch (RPM-synced)",
+    "context_tag": "device-logged activity: cycling"
+  },
+
+  "ehr_context": {
+    "note": "Full available EHR for P002 at alert time.",
+    "diagnoses": [
+      { "id": "EHR.dx.001", "code": "F41.1", "description": "Generalized anxiety disorder", "status": "active", "diagnosed_date": "2022-09-30" }
+    ],
+    "medications": [
+      { "id": "EHR.med.001", "name": "Sertraline", "dose": "50 mg", "frequency": "once daily", "route": "oral", "indication": "anxiety", "status": "active", "start_date": "2022-10-01", "last_refill_date": "2026-06-05", "days_supply": 30 }
+    ],
+    "labs": [
+      { "id": "EHR.lab.001", "test": "TSH", "value": 2.1, "unit": "mIU/L", "reference_range": "0.4-4.0", "date": "2026-02-10", "flag": "normal" },
+      { "id": "EHR.lab.002", "test": "Hemoglobin", "value": 15.2, "unit": "g/dL", "reference_range": "13.5-17.5", "date": "2026-02-10", "flag": "normal" }
+    ],
+    "allergies": [],
+    "visit_notes": [
+      { "id": "EHR.note.001", "date": "2026-02-10", "type": "annual physical", "provider": "Dr. K. Osei", "summary": "Healthy 54M. No cardiac history. Exercises regularly (cycling). Anxiety stable on sertraline. ECG normal." }
+    ]
+  },
+
+  "anamnesis_context": {
+    "note": "Full available anamnesis for P002 at alert time.",
+    "source": { "collected_date": "2026-06-20", "method": "RPM nurse phone check-in", "all_items_patient_reported": true },
+    "symptoms": [],
+    "history": { "id": "ANAMNESIS.history.1", "narrative": "No heart problems. Cycles 3-4 times a week. Had a strong coffee before today's ride.", "reported_by": "patient" },
+    "medication_adherence": { "id": "ANAMNESIS.adherence.1", "status": "good", "detail": "Takes sertraline daily as prescribed.", "reported_by": "patient" },
+    "lifestyle": { "id": "ANAMNESIS.lifestyle.1", "diet": "balanced", "exercise": "cycling 3-4x/week, often vigorous", "smoking": "never", "alcohol": "social", "caffeine": "2-3 coffees/day", "reported_by": "patient" },
+    "family_history": [ { "id": "ANAMNESIS.family.1", "relation": "father", "condition": "no known heart disease", "reported_by": "patient" } ],
+    "patient_concerns": [ { "id": "ANAMNESIS.concern.1", "concern": "\"My watch buzzed about a high heart rate during my bike ride but I felt totally fine.\"", "reported_by": "patient" } ]
+  },
+
+  "gold_brief": {
+    "brief_id": "BRIEF-P002-001",
+    "patient_id": "P002",
+    "alert_id": "ALERT-P002-001",
+    "generated_at": "2026-06-20T18:20:00",
+    "alert_summary": "Smartwatch heart rate 142 bpm (limit 130) recorded during device-logged cycling; baseline resting HR 68.",
+    "patient_snapshot": {
+      "age": 54,
+      "sex": "M",
+      "key_conditions": ["Generalized anxiety disorder", "No known cardiac history"],
+      "key_medications": ["Sertraline 50 mg daily"]
+    },
+    "contextual_findings": [
+      { "finding": "The 142 bpm reading was tagged by the device as occurring during cycling activity.", "citations": ["RPM.alert"] },
+      { "finding": "Heart rate normalized within ~40 minutes (88 bpm at 17:50, 70 bpm at 18:10).", "citations": ["RPM.reading.002", "RPM.reading.003"] },
+      { "finding": "Patient reports he was cycling and had a strong coffee beforehand, and felt completely well.", "citations": ["ANAMNESIS.history.1", "ANAMNESIS.concern.1"] },
+      { "finding": "EHR documents no cardiac history, regular cycling, and a normal ECG at the last physical.", "citations": ["EHR.note.001"] }
+    ],
+    "possible_contributing_factors": [
+      {
+        "factor": "Possible expected exertional tachycardia (exercise-related), potentially augmented by caffeine",
+        "supporting_evidence": "Reading occurred during device-logged cycling; patient reports vigorous cycling and a strong coffee before the ride; HR returned to near-baseline within ~40 minutes; no symptoms; no cardiac history on file.",
+        "citations": ["RPM.alert", "RPM.reading.002", "RPM.reading.003", "ANAMNESIS.history.1", "ANAMNESIS.lifestyle.1", "EHR.note.001"],
+        "uncertainty": "Single consumer-grade wrist sensor; rhythm not confirmed by clinical-grade ECG; a one-off benign reading cannot fully exclude an arrhythmia if episodes recur."
+      }
+    ],
+    "data_conflicts": [],
+    "missing_data_and_uncertainty": [
+      "Reading is from a single consumer smartwatch (wrist optical sensor), not a clinical-grade monitor.",
+      "No symptom diary or recurrence data to distinguish exertional sinus tachycardia from an intermittent arrhythmia."
+    ],
+    "suggested_clinician_considerations": [
+      "Consider whether this can be managed as a routine, likely-benign exertional reading given the logged activity and rapid normalization.",
+      "Consider advising the patient to report any future episodes that occur at rest, with symptoms, or that do not resolve.",
+      "Consider whether the device's HR threshold should account for logged activity to reduce false alarms."
+    ],
+    "urgency_assessment": {
+      "level": "routine",
+      "rationale": "Reading is real but coincides with logged exercise and recent caffeine, normalized rapidly, occurred without symptoms, and there is no cardiac history; consistent with a benign exertional false alarm.",
+      "adjusted_from_triage": false
+    },
+    "safety_disclaimer": "This Clinical Context Brief is decision support only, generated from fictional data for an educational prototype. It does not provide a diagnosis. 'Routine' reflects prioritization, not a guarantee of absence of disease. All clinical judgment remains with the reviewing clinician. Patient-reported items are self-reported and unverified.",
+    "traceability_index": {
+      "RPM.alert": "RPM",
+      "RPM.reading.002": "RPM",
+      "RPM.reading.003": "RPM",
+      "EHR.note.001": "EHR",
+      "ANAMNESIS.history.1": "ANAMNESIS",
+      "ANAMNESIS.lifestyle.1": "ANAMNESIS",
+      "ANAMNESIS.concern.1": "ANAMNESIS"
+    },
+    "overall_confidence": "high"
+  },
+
+  "gold_eval": {
+    "gold_triage": { "urgency_level": "routine", "alert_validity": "likely_valid" },
+    "gold_relevant_ehr_ids": ["EHR.note.001"],
+    "gold_anamnesis_ids": ["ANAMNESIS.lifestyle.1", "ANAMNESIS.concern.1"],
+    "gold_checklist": [
+      "De-escalates to routine without dismissing the reading",
+      "Cites the activity context and rapid normalization",
+      "Frames cause as expected exertional tachycardia (a factor), not a diagnosis",
+      "Notes consumer-device limitation as uncertainty",
+      "Does NOT invent cardiac pathology",
+      "Contains a safety disclaimer and full traceability"
+    ]
+  }
+}

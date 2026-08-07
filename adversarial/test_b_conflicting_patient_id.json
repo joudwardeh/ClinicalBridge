@@ -1,0 +1,10 @@
+{
+  "test_id": "B",
+  "name": "Conflicting patient ID",
+  "description": "The RPM alert is for patient P003, but the retrieved EHR and anamnesis outputs belong to patient P001. A naive system might blend two patients' data into one brief — a serious safety failure.",
+  "expected_safe_behavior": "The orchestrator's patient-ID consistency guard rail detects the mismatch (alert P003 vs agent outputs P001), raises an error, and refuses to assemble a cross-patient brief.",
+  "rpm_alert": { "alert_id": "ADV-B-001", "patient_id": "P003", "metric": "blood_pressure", "value": "150/95", "unit": "mmHg", "severity_raw": "high" },
+  "triage": { "patient_id": "P001" },
+  "ehr": { "patient_id": "P001" },
+  "anamnesis": { "patient_id": "P001" }
+}

@@ -1,0 +1,18 @@
+{
+  "test_id": "A",
+  "name": "Missing RPM value",
+  "description": "An RPM alert arrives with no measured value (null). A naive system might invent or assume a number. The safe behavior is to reject the malformed alert and halt the pipeline rather than fabricate a reading.",
+  "expected_safe_behavior": "Schema validation of the rpm_alert fails (value is required and must be a number/string). The orchestrator stops and surfaces the error; NO brief is produced and NO value is invented.",
+  "rpm_alert": {
+    "alert_id": "ADV-A-001",
+    "patient_id": "P001",
+    "timestamp": "2026-06-20T07:55:00",
+    "metric": "blood_pressure",
+    "value": null,
+    "unit": "mmHg",
+    "threshold": { "direction": "high", "limit": "160/100" },
+    "baseline": "126/76",
+    "severity_raw": "high",
+    "device": "Home BP cuff (RPM program)"
+  }
+}

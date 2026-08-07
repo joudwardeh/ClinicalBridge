@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "clinicalbridge/ehr_record",
+  "title": "EHR Record",
+  "description": "A patient's Electronic Health Record. FICTIONAL DATA ONLY.",
+  "type": "object",
+  "required": ["diagnoses", "medications", "labs", "allergies", "visit_notes"],
+  "properties": {
+    "diagnoses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "description", "status"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^EHR\\.dx\\." },
+          "code": { "type": "string" },
+          "description": { "type": "string" },
+          "status": { "type": "string", "enum": ["active", "resolved", "inactive"] },
+          "diagnosed_date": { "type": "string" }
+        }
+      }
+    },
+    "medications": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "status"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^EHR\\.med\\." },
+          "name": { "type": "string" },
+          "dose": { "type": "string" },
+          "frequency": { "type": "string" },
+          "route": { "type": "string" },
+          "indication": { "type": "string" },
+          "status": { "type": "string", "enum": ["active", "discontinued", "held"] },
+          "start_date": { "type": "string" },
+          "last_refill_date": { "type": "string" },
+          "days_supply": { "type": ["number", "null"] }
+        }
+      }
+    },
+    "labs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "test", "value", "date"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^EHR\\.lab\\." },
+          "test": { "type": "string" },
+          "value": { "type": ["number", "string"] },
+          "unit": { "type": "string" },
+          "reference_range": { "type": "string" },
+          "date": { "type": "string" },
+          "flag": { "type": "string", "enum": ["normal", "high", "low", "critical"] }
+        }
+      }
+    },
+    "allergies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "substance"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^EHR\\.allergy\\." },
+          "substance": { "type": "string" },
+          "reaction": { "type": "string" },
+          "severity": { "type": "string" }
+        }
+      }
+    },
+    "visit_notes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "date", "summary"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^EHR\\.note\\." },
+          "date": { "type": "string" },
+          "type": { "type": "string" },
+          "provider": { "type": "string" },
+          "summary": { "type": "string" }
+        }
+      }
+    }
+  }
+}

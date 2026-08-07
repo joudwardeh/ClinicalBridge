@@ -1,0 +1,145 @@
+{
+  "scenario_id": 3,
+  "name": "Silent Deterioration",
+  "patient_id": "P003",
+  "teaching_point": "No single reading is dramatic and the device under-rated severity, but a slow cumulative trend across weight + SpO2 + patient-reported symptoms signals worsening volume status in a heart-failure patient. Tests whether the system reasons over a TREND and escalates beyond the raw device severity, while still refusing to diagnose decompensation.",
+  "disclaimer": "FICTIONAL DATA ONLY. Educational prototype. Not a diagnosis.",
+
+  "rpm_alert": {
+    "alert_id": "ALERT-P003-001",
+    "patient_id": "P003",
+    "timestamp": "2026-06-20T07:10:00",
+    "metric": "weight_trend",
+    "value": "+3.4 kg over 7 days",
+    "unit": "kg",
+    "threshold": { "direction": "trend", "limit": "+2 kg / 3 days", "window": "7 days" },
+    "baseline": 70.0,
+    "severity_raw": "medium",
+    "device": "Heart failure home monitoring program (weight + SpO2 + HR)",
+    "context_tag": "7-day cumulative weight monitor; no single 3-day window exceeded +2 kg"
+  },
+
+  "ehr_context": {
+    "note": "Full available EHR for P003 at alert time.",
+    "diagnoses": [
+      { "id": "EHR.dx.001", "code": "I50.22", "description": "Chronic systolic (congestive) heart failure", "status": "active", "diagnosed_date": "2021-05-18" },
+      { "id": "EHR.dx.002", "code": "I10", "description": "Essential hypertension", "status": "active", "diagnosed_date": "2010-08-04" },
+      { "id": "EHR.dx.003", "code": "N18.2", "description": "Chronic kidney disease, stage 2", "status": "active", "diagnosed_date": "2020-11-30" },
+      { "id": "EHR.dx.004", "code": "I48.91", "description": "Atrial fibrillation", "status": "active", "diagnosed_date": "2021-05-18" }
+    ],
+    "medications": [
+      { "id": "EHR.med.001", "name": "Furosemide", "dose": "40 mg", "frequency": "once daily", "route": "oral", "indication": "heart failure / fluid management", "status": "active", "start_date": "2021-05-20", "last_refill_date": "2026-06-03", "days_supply": 30 },
+      { "id": "EHR.med.002", "name": "Carvedilol", "dose": "12.5 mg", "frequency": "twice daily", "route": "oral", "indication": "heart failure", "status": "active", "start_date": "2021-05-20", "last_refill_date": "2026-06-03", "days_supply": 30 },
+      { "id": "EHR.med.003", "name": "Lisinopril", "dose": "10 mg", "frequency": "once daily", "route": "oral", "indication": "heart failure / hypertension", "status": "active", "start_date": "2021-05-20", "last_refill_date": "2026-06-03", "days_supply": 30 },
+      { "id": "EHR.med.004", "name": "Apixaban", "dose": "5 mg", "frequency": "twice daily", "route": "oral", "indication": "atrial fibrillation / stroke prevention", "status": "active", "start_date": "2021-05-20", "last_refill_date": "2026-06-03", "days_supply": 30 }
+    ],
+    "labs": [
+      { "id": "EHR.lab.001", "test": "BNP", "value": 410, "unit": "pg/mL", "reference_range": "<100", "date": "2026-03-01", "flag": "high" },
+      { "id": "EHR.lab.002", "test": "Creatinine", "value": 1.2, "unit": "mg/dL", "reference_range": "0.6-1.1", "date": "2026-03-01", "flag": "high" },
+      { "id": "EHR.lab.003", "test": "Potassium", "value": 4.2, "unit": "mmol/L", "reference_range": "3.5-5.0", "date": "2026-03-01", "flag": "normal" }
+    ],
+    "allergies": [],
+    "visit_notes": [
+      { "id": "EHR.note.001", "date": "2026-03-01", "type": "cardiology follow-up", "provider": "Dr. L. Hammond", "summary": "Compensated heart failure. Dry weight ~70 kg. Counseled on daily weights and low-salt diet; call if weight rises >2 kg in 3 days or increasing breathlessness." }
+    ]
+  },
+
+  "anamnesis_context": {
+    "note": "Full available anamnesis for P003 at alert time.",
+    "source": { "collected_date": "2026-06-20", "method": "RPM nurse phone check-in", "all_items_patient_reported": true },
+    "symptoms": [
+      { "id": "ANAMNESIS.symptom.1", "symptom": "increased shortness of breath on stairs", "onset": "past several days", "severity": "mild-moderate", "reported_by": "patient" },
+      { "id": "ANAMNESIS.symptom.2", "symptom": "shoes and ankles feel tight/swollen", "onset": "past week", "severity": "mild", "reported_by": "patient" }
+    ],
+    "history": { "id": "ANAMNESIS.history.1", "narrative": "Heart failure for several years, usually stable. Tries to weigh herself daily.", "reported_by": "patient" },
+    "medication_adherence": { "id": "ANAMNESIS.adherence.1", "status": "good", "detail": "Takes all heart medications as prescribed, including the water pill.", "reported_by": "patient" },
+    "lifestyle": { "id": "ANAMNESIS.lifestyle.1", "diet": "admits to a salty restaurant meal and takeout twice this week", "exercise": "limited", "smoking": "former, quit 2009", "alcohol": "none", "reported_by": "patient" },
+    "family_history": [ { "id": "ANAMNESIS.family.1", "relation": "brother", "condition": "heart failure", "reported_by": "patient" } ],
+    "patient_concerns": [ { "id": "ANAMNESIS.concern.1", "concern": "\"I figured the weight was just from eating out. I didn't want to bother anyone.\"", "reported_by": "patient" } ]
+  },
+
+  "gold_brief": {
+    "brief_id": "BRIEF-P003-001",
+    "patient_id": "P003",
+    "alert_id": "ALERT-P003-001",
+    "generated_at": "2026-06-20T07:25:00",
+    "alert_summary": "Cumulative weight gain of +3.4 kg over 7 days (70.0 -> 73.4 kg) in a heart-failure monitoring program; device severity was rated 'medium' and no single 3-day window crossed the +2 kg limit.",
+    "patient_snapshot": {
+      "age": 76,
+      "sex": "F",
+      "key_conditions": ["Chronic systolic heart failure", "Atrial fibrillation", "CKD stage 2", "Hypertension"],
+      "key_medications": ["Furosemide 40 mg daily", "Carvedilol 12.5 mg BID", "Lisinopril 10 mg", "Apixaban 5 mg BID"]
+    },
+    "contextual_findings": [
+      { "finding": "Weight rose steadily each day over 7 days (70.4 -> 70.9 -> 71.5 -> 72.0 -> 72.6 -> 73.1 -> 73.4 kg), a consistent upward trend rather than a one-day jump.", "citations": ["RPM.reading.001", "RPM.reading.002", "RPM.reading.003", "RPM.reading.004", "RPM.reading.005", "RPM.reading.006", "RPM.reading.007"] },
+      { "finding": "SpO2 has drifted down from a baseline of 96% to 94% (06-18) and 93% (06-20), still above the 92% alert limit.", "citations": ["RPM.baseline.spo2", "RPM.reading.008", "RPM.reading.009"] },
+      { "finding": "Patient reports increased shortness of breath on stairs and that her shoes/ankles feel tight and swollen.", "citations": ["ANAMNESIS.symptom.1", "ANAMNESIS.symptom.2"] },
+      { "finding": "EHR documents chronic systolic heart failure with a dry weight ~70 kg and explicit instructions to call for weight rise >2 kg/3 days or increasing breathlessness.", "citations": ["EHR.dx.001", "EHR.note.001"] },
+      { "finding": "On a daily diuretic (furosemide 40 mg); most recent BNP was elevated at 410 pg/mL (2026-03-01).", "citations": ["EHR.med.001", "EHR.lab.001"] },
+      { "finding": "Patient reports two salty restaurant/takeout meals this week.", "citations": ["ANAMNESIS.lifestyle.1"] }
+    ],
+    "possible_contributing_factors": [
+      {
+        "factor": "Possible worsening volume status / fluid retention to consider in the context of known heart failure",
+        "supporting_evidence": "Steady 7-day weight gain of +3.4 kg above dry weight, concurrent downward SpO2 drift, patient-reported exertional dyspnea and peripheral swelling, recent dietary salt, and a prior elevated BNP — all converging.",
+        "citations": ["RPM.reading.007", "RPM.baseline.weight", "RPM.reading.009", "ANAMNESIS.symptom.1", "ANAMNESIS.symptom.2", "ANAMNESIS.lifestyle.1", "EHR.dx.001", "EHR.lab.001"],
+        "uncertainty": "No clinical exam, no current weight confirmation on a calibrated scale, no current BNP/renal labs; the trend is suggestive but not diagnostic, and medication adherence is reported as good so this is not explained by a missed diuretic."
+      }
+    ],
+    "data_conflicts": [],
+    "missing_data_and_uncertainty": [
+      "Most recent potassium and creatinine are from 2026-03-01 (>3 months old) — relevant given a loop diuretic and CKD.",
+      "No current BNP to compare against the prior value of 410 pg/mL.",
+      "SpO2 captured only twice over the window; no continuous trend.",
+      "Home scale not confirmed to be calibrated/consistent."
+    ],
+    "suggested_clinician_considerations": [
+      "Consider prompt clinician review and direct contact with the patient despite the 'medium' device severity, given the converging trend and symptoms.",
+      "Consider whether a clinical assessment of volume status (exam, current weight, symptom review) is warranted.",
+      "Consider whether current renal function/electrolytes are needed before any diuretic adjustment.",
+      "Reinforce the patient's instruction to report weight gain and breathlessness early (she reports not wanting to 'bother anyone')."
+    ],
+    "urgency_assessment": {
+      "level": "urgent",
+      "rationale": "Although no single reading breached a hard threshold and the device rated severity 'medium', the convergence of a sustained weight trend, SpO2 drift, and new symptoms in a heart-failure patient warrants prompt review. When signals disagree, the higher concern is retained.",
+      "adjusted_from_triage": false
+    },
+    "safety_disclaimer": "This Clinical Context Brief is decision support only, generated from fictional data for an educational prototype. It does not diagnose heart failure decompensation or any condition. All clinical judgment remains with the reviewing clinician. Patient-reported items are self-reported and unverified.",
+    "traceability_index": {
+      "RPM.alert": "RPM",
+      "RPM.baseline.weight": "RPM",
+      "RPM.baseline.spo2": "RPM",
+      "RPM.reading.001": "RPM",
+      "RPM.reading.002": "RPM",
+      "RPM.reading.003": "RPM",
+      "RPM.reading.004": "RPM",
+      "RPM.reading.005": "RPM",
+      "RPM.reading.006": "RPM",
+      "RPM.reading.007": "RPM",
+      "RPM.reading.008": "RPM",
+      "RPM.reading.009": "RPM",
+      "EHR.dx.001": "EHR",
+      "EHR.med.001": "EHR",
+      "EHR.lab.001": "EHR",
+      "EHR.note.001": "EHR",
+      "ANAMNESIS.symptom.1": "ANAMNESIS",
+      "ANAMNESIS.symptom.2": "ANAMNESIS",
+      "ANAMNESIS.lifestyle.1": "ANAMNESIS"
+    },
+    "overall_confidence": "medium"
+  },
+
+  "gold_eval": {
+    "gold_triage": { "urgency_level": "urgent", "alert_validity": "likely_valid" },
+    "gold_relevant_ehr_ids": ["EHR.dx.001", "EHR.dx.003", "EHR.med.001", "EHR.lab.001", "EHR.lab.002", "EHR.note.001"],
+    "gold_anamnesis_ids": ["ANAMNESIS.symptom.1", "ANAMNESIS.symptom.2", "ANAMNESIS.lifestyle.1", "ANAMNESIS.concern.1"],
+    "gold_checklist": [
+      "Reasons over the multi-day trend, not a single reading",
+      "Combines weight + SpO2 drift + symptoms into one picture",
+      "Escalates above the raw 'medium' device severity with rationale",
+      "Frames volume status as a factor to consider, not a diagnosis of decompensation",
+      "Flags stale potassium/creatinine and absent current BNP",
+      "Contains a safety disclaimer and full traceability"
+    ]
+  }
+}

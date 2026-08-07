@@ -1,0 +1,134 @@
+{
+  "scenario_id": 1,
+  "name": "Missed Medication",
+  "patient_id": "P001",
+  "teaching_point": "An out-of-range vital has a simple, traceable cause hiding in the anamnesis (a medication lapse) that the raw alert never reveals. Tests whether the system connects a refill gap in the EHR with a patient-reported lapse.",
+  "disclaimer": "FICTIONAL DATA ONLY. Educational prototype. Not a diagnosis.",
+
+  "rpm_alert": {
+    "alert_id": "ALERT-P001-001",
+    "patient_id": "P001",
+    "timestamp": "2026-06-20T07:55:00",
+    "metric": "blood_pressure",
+    "value": "182/104",
+    "unit": "mmHg",
+    "threshold": { "direction": "high", "limit": "160/100" },
+    "baseline": "126/76",
+    "severity_raw": "high",
+    "device": "Home BP cuff (RPM program)",
+    "context_tag": null
+  },
+
+  "ehr_context": {
+    "note": "Full available EHR for P001 at alert time (mirrors data/patients.json). The EHR agent must select only the relevant subset.",
+    "diagnoses": [
+      { "id": "EHR.dx.001", "code": "I10", "description": "Essential hypertension", "status": "active", "diagnosed_date": "2016-03-12" },
+      { "id": "EHR.dx.002", "code": "E11.9", "description": "Type 2 diabetes mellitus", "status": "active", "diagnosed_date": "2018-07-09" },
+      { "id": "EHR.dx.003", "code": "E78.5", "description": "Hyperlipidemia", "status": "active", "diagnosed_date": "2017-01-22" }
+    ],
+    "medications": [
+      { "id": "EHR.med.001", "name": "Lisinopril", "dose": "20 mg", "frequency": "once daily", "route": "oral", "indication": "hypertension", "status": "active", "start_date": "2016-03-15", "last_refill_date": "2026-05-02", "days_supply": 30 },
+      { "id": "EHR.med.002", "name": "Metformin", "dose": "1000 mg", "frequency": "twice daily", "route": "oral", "indication": "type 2 diabetes", "status": "active", "start_date": "2018-07-10", "last_refill_date": "2026-06-01", "days_supply": 30 },
+      { "id": "EHR.med.003", "name": "Atorvastatin", "dose": "40 mg", "frequency": "once daily at bedtime", "route": "oral", "indication": "hyperlipidemia", "status": "active", "start_date": "2017-02-01", "last_refill_date": "2026-06-01", "days_supply": 30 }
+    ],
+    "labs": [
+      { "id": "EHR.lab.001", "test": "HbA1c", "value": 7.1, "unit": "%", "reference_range": "<7.0", "date": "2026-04-15", "flag": "high" },
+      { "id": "EHR.lab.002", "test": "Creatinine", "value": 0.9, "unit": "mg/dL", "reference_range": "0.6-1.1", "date": "2026-04-15", "flag": "normal" },
+      { "id": "EHR.lab.003", "test": "eGFR", "value": 78, "unit": "mL/min/1.73m2", "reference_range": ">60", "date": "2026-04-15", "flag": "normal" }
+    ],
+    "allergies": [
+      { "id": "EHR.allergy.001", "substance": "Penicillin", "reaction": "rash", "severity": "moderate" }
+    ],
+    "visit_notes": [
+      { "id": "EHR.note.001", "date": "2026-04-15", "type": "routine follow-up", "provider": "Dr. A. Rivera", "summary": "BP controlled at 128/78 in clinic. Reviewed medication list; patient reports good adherence. Continue current regimen. Recheck in 3 months." }
+    ]
+  },
+
+  "anamnesis_context": {
+    "note": "Full available anamnesis for P001 at alert time.",
+    "source": { "collected_date": "2026-06-20", "method": "RPM nurse phone check-in", "all_items_patient_reported": true },
+    "symptoms": [
+      { "id": "ANAMNESIS.symptom.1", "symptom": "mild headache", "onset": "past few days", "severity": "mild", "reported_by": "patient" }
+    ],
+    "history": { "id": "ANAMNESIS.history.1", "narrative": "Long-standing high blood pressure and diabetes, usually well controlled at home.", "reported_by": "patient" },
+    "medication_adherence": { "id": "ANAMNESIS.adherence.1", "status": "lapse", "detail": "Reports she ran out of her blood pressure pill about a week ago and has not picked up the refill yet; still taking the diabetes and cholesterol pills.", "barriers": "could not get a ride to the pharmacy", "reported_by": "patient" },
+    "lifestyle": { "id": "ANAMNESIS.lifestyle.1", "diet": "moderate salt, trying to reduce", "exercise": "walks 20 min most days", "smoking": "never", "alcohol": "rare", "reported_by": "patient" },
+    "family_history": [ { "id": "ANAMNESIS.family.1", "relation": "mother", "condition": "hypertension, stroke at 79", "reported_by": "patient" } ],
+    "patient_concerns": [ { "id": "ANAMNESIS.concern.1", "concern": "\"I feel okay but the machine keeps showing high numbers and it's making me nervous.\"", "reported_by": "patient" } ]
+  },
+
+  "gold_brief": {
+    "brief_id": "BRIEF-P001-001",
+    "patient_id": "P001",
+    "alert_id": "ALERT-P001-001",
+    "generated_at": "2026-06-20T08:05:00",
+    "alert_summary": "Home BP 182/104 mmHg, well above the 160/100 alert limit and far above the patient's 126/76 baseline.",
+    "patient_snapshot": {
+      "age": 68,
+      "sex": "F",
+      "key_conditions": ["Essential hypertension", "Type 2 diabetes"],
+      "key_medications": ["Lisinopril 20 mg daily", "Metformin 1000 mg BID", "Atorvastatin 40 mg"]
+    },
+    "contextual_findings": [
+      { "finding": "BP has trended upward over the past week (150/92 -> 164/96 -> 176/100 -> 182/104), not a single isolated spike.", "citations": ["RPM.reading.001", "RPM.reading.002", "RPM.reading.003", "RPM.alert"] },
+      { "finding": "Patient reports she ran out of her blood pressure pill about a week ago and has not refilled it.", "citations": ["ANAMNESIS.adherence.1"] },
+      { "finding": "Lisinopril 20 mg daily is an active antihypertensive; last refill 2026-05-02 was a 30-day supply, which is consistent with the medication running out around mid-June.", "citations": ["EHR.med.001"] },
+      { "finding": "Patient reports a mild headache over the past few days.", "citations": ["ANAMNESIS.symptom.1"] }
+    ],
+    "possible_contributing_factors": [
+      {
+        "factor": "Possible contribution from an antihypertensive medication lapse",
+        "supporting_evidence": "Patient-reported that she ran out of her BP pill ~1 week ago; EHR shows lisinopril last refilled 2026-05-02 as a 30-day supply; BP has risen steadily over the same period.",
+        "citations": ["ANAMNESIS.adherence.1", "EHR.med.001", "RPM.reading.001", "RPM.alert"],
+        "uncertainty": "Self-reported lapse not yet confirmed against pharmacy fill data; other contributors (diet, stress, white-coat effect) not excluded."
+      }
+    ],
+    "data_conflicts": [
+      {
+        "description": "The most recent clinic note (2026-04-15) records 'good adherence', whereas the patient now reports a lapse beginning ~1 week ago. These are not necessarily contradictory (different time points) but the change in adherence since the last visit should be noted.",
+        "citations": ["EHR.note.001", "ANAMNESIS.adherence.1"]
+      }
+    ],
+    "missing_data_and_uncertainty": [
+      "No serum potassium on file (last labs 2026-04-15 included creatinine/eGFR but not potassium) — relevant when adjusting an ACE inhibitor.",
+      "Pharmacy fill/pickup history not available to confirm the reported lapse.",
+      "No same-day repeat BP measurement or symptom check for end-organ concern."
+    ],
+    "suggested_clinician_considerations": [
+      "Confirm the medication lapse with the patient and/or pharmacy and clarify the barrier to refill (reported lack of transportation).",
+      "Consider a repeat BP measurement and ask about red-flag symptoms (severe headache, chest pain, visual changes, focal weakness).",
+      "Consider whether recent renal function/electrolytes are needed before resuming/adjusting the ACE inhibitor."
+    ],
+    "urgency_assessment": {
+      "level": "urgent",
+      "rationale": "Markedly elevated BP with an upward trend and a plausible, addressable cause; warrants prompt clinician review, though no reported red-flag symptoms.",
+      "adjusted_from_triage": false
+    },
+    "safety_disclaimer": "This Clinical Context Brief is decision support only, generated from fictional data for an educational prototype. It does not provide a diagnosis or treatment recommendation. All clinical judgment remains with the reviewing clinician. Patient-reported items are self-reported and unverified.",
+    "traceability_index": {
+      "RPM.alert": "RPM",
+      "RPM.reading.001": "RPM",
+      "RPM.reading.002": "RPM",
+      "RPM.reading.003": "RPM",
+      "EHR.med.001": "EHR",
+      "EHR.note.001": "EHR",
+      "ANAMNESIS.adherence.1": "ANAMNESIS",
+      "ANAMNESIS.symptom.1": "ANAMNESIS"
+    },
+    "overall_confidence": "medium"
+  },
+
+  "gold_eval": {
+    "gold_triage": { "urgency_level": "urgent", "alert_validity": "likely_valid" },
+    "gold_relevant_ehr_ids": ["EHR.dx.001", "EHR.med.001", "EHR.lab.002", "EHR.lab.003", "EHR.note.001"],
+    "gold_anamnesis_ids": ["ANAMNESIS.adherence.1", "ANAMNESIS.symptom.1", "ANAMNESIS.concern.1"],
+    "gold_checklist": [
+      "Identifies medication-lapse as a factor to consider (not a diagnosis)",
+      "Connects EHR refill date/supply with the patient-reported lapse",
+      "Notes the rising BP trend rather than a single reading",
+      "Flags missing potassium / pharmacy confirmation as missing data",
+      "Suggests clinician considerations, not orders",
+      "Contains a safety disclaimer and full traceability"
+    ]
+  }
+}

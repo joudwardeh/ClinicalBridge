@@ -1,0 +1,52 @@
+# =====================
+# Python files
+# =====================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# =====================
+# Virtual environments
+# =====================
+.venv/
+venv/
+env/
+
+# =====================
+# Environment variables
+# =====================
+.env
+.env.*
+
+# =====================
+# Jupyter Notebook
+# =====================
+.ipynb_checkpoints/
+
+# =====================
+# IDE files
+# =====================
+.idea/
+.vscode/
+
+# =====================
+# Generated outputs
+# =====================
+outputs/
+agent_outputs/
+
+# =====================
+# Simulated data files
+# =====================
+data/
+
+# =====================
+# Memory/session files
+# =====================
+memory/*.json
+
+# =====================
+# Operating system files
+# =====================
+.DS_Store
+Thumbs.db

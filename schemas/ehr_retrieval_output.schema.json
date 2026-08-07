@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "clinicalbridge/ehr_retrieval_output",
+  "title": "EHR Retrieval Agent Output",
+  "description": "The RELEVANT subset of the EHR for this alert. Every item is copied verbatim and carries its source id + relevance reason.",
+  "type": "object",
+  "required": ["alert_id", "patient_id", "relevant_diagnoses", "relevant_medications", "relevant_labs", "relevant_allergies", "relevant_visit_notes", "data_gaps", "retrieval_confidence"],
+  "additionalProperties": false,
+  "properties": {
+    "alert_id": { "type": "string" },
+    "patient_id": { "type": "string" },
+    "relevant_diagnoses": { "$ref": "#/$defs/relevant_item_array" },
+    "relevant_medications": { "$ref": "#/$defs/relevant_item_array" },
+    "relevant_labs": { "$ref": "#/$defs/relevant_item_array" },
+    "relevant_allergies": { "$ref": "#/$defs/relevant_item_array" },
+    "relevant_visit_notes": { "$ref": "#/$defs/relevant_item_array" },
+    "data_gaps": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Relevant EHR data that SHOULD exist for this alert but is absent or stale (e.g., 'no potassium in last 90 days')."
+    },
+    "retrieval_confidence": { "type": "string", "enum": ["low", "medium", "high"] }
+  },
+  "$defs": {
+    "relevant_item_array": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source_id", "content", "relevance_reason"],
+        "properties": {
+          "source_id": { "type": "string", "description": "Must match an id in the source EHR record." },
+          "content": { "type": "string", "description": "The item copied VERBATIM (no paraphrase of doses/values)." },
+          "relevance_reason": { "type": "string", "description": "One line: why this matters to THIS alert." }
+        }
+      }
+    }
+  }
+}

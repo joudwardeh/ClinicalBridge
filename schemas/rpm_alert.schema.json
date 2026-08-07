@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "clinicalbridge/rpm_alert",
+  "title": "RPM Alert Input",
+  "description": "A single Remote Patient Monitoring alert. This is the trigger that starts the pipeline. FICTIONAL DATA ONLY.",
+  "type": "object",
+  "required": ["alert_id", "patient_id", "timestamp", "metric", "value", "unit", "threshold", "severity_raw"],
+  "additionalProperties": false,
+  "properties": {
+    "alert_id": { "type": "string", "description": "Unique id for this alert event." },
+    "patient_id": { "type": "string", "description": "References a patient in data/patients.json." },
+    "timestamp": { "type": "string", "description": "ISO-8601 datetime the alert fired." },
+    "metric": {
+      "type": "string",
+      "enum": ["blood_pressure", "glucose_fasting", "glucose", "heart_rate", "spo2", "weight", "weight_trend"],
+      "description": "Which monitored metric triggered the alert."
+    },
+    "value": { "description": "The reading that breached threshold. String for compound values like '182/104'.", "type": ["number", "string"] },
+    "unit": { "type": "string" },
+    "threshold": {
+      "type": "object",
+      "description": "The threshold that was breached.",
+      "properties": {
+        "direction": { "type": "string", "enum": ["high", "low", "trend"] },
+        "limit": { "type": ["number", "string"] },
+        "window": { "type": "string", "description": "For trend alerts, e.g. '3 days'." }
+      }
+    },
+    "baseline": { "description": "The patient's baseline for this metric, if known.", "type": ["number", "string", "null"] },
+    "severity_raw": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "critical"],
+      "description": "Device-assigned severity BEFORE clinical triage. Not a clinical judgment."
+    },
+    "device": { "type": "string", "description": "Device or program that produced the alert." },
+    "context_tag": { "type": ["string", "null"], "description": "Optional device-logged context, e.g. 'activity: cycling'." }
+  }
+}

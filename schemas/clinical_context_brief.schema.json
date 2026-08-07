@@ -1,0 +1,91 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "clinicalbridge/clinical_context_brief",
+  "title": "Clinical Context Brief",
+  "description": "The final artifact a clinician reviews. Decision SUPPORT only. No diagnoses. Every clinical claim must be traceable to a source id.",
+  "type": "object",
+  "required": ["brief_id", "patient_id", "alert_id", "generated_at", "alert_summary", "patient_snapshot", "contextual_findings", "possible_contributing_factors", "data_conflicts", "missing_data_and_uncertainty", "suggested_clinician_considerations", "urgency_assessment", "safety_disclaimer", "traceability_index", "overall_confidence"],
+  "additionalProperties": false,
+  "properties": {
+    "brief_id": { "type": "string" },
+    "patient_id": { "type": "string" },
+    "alert_id": { "type": "string" },
+    "generated_at": { "type": "string" },
+    "alert_summary": { "type": "string", "description": "One-line plain restatement of what fired and how far out of range." },
+    "patient_snapshot": {
+      "type": "object",
+      "description": "Minimal at-a-glance context.",
+      "properties": {
+        "age": { "type": ["number", "string"] },
+        "sex": { "type": "string" },
+        "key_conditions": { "type": "array", "items": { "type": "string" } },
+        "key_medications": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "contextual_findings": {
+      "type": "array",
+      "description": "The assembled story, each finding tied to a source.",
+      "items": {
+        "type": "object",
+        "required": ["finding", "citations"],
+        "properties": {
+          "finding": { "type": "string" },
+          "citations": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+        }
+      }
+    },
+    "possible_contributing_factors": {
+      "type": "array",
+      "description": "Hypotheses framed as 'factors to consider' ONLY. Never diagnoses. Each must be traceable and carry uncertainty.",
+      "items": {
+        "type": "object",
+        "required": ["factor", "supporting_evidence", "citations", "uncertainty"],
+        "properties": {
+          "factor": { "type": "string", "description": "Phrased as a factor to consider, e.g. 'possible contribution from medication lapse'." },
+          "supporting_evidence": { "type": "string" },
+          "citations": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+          "uncertainty": { "type": "string", "description": "What would confirm/refute this; remaining unknowns." }
+        }
+      }
+    },
+    "data_conflicts": {
+      "type": "array",
+      "description": "Explicit contradictions between sources. Do not silently resolve.",
+      "items": {
+        "type": "object",
+        "required": ["description", "citations"],
+        "properties": {
+          "description": { "type": "string" },
+          "citations": { "type": "array", "items": { "type": "string" }, "minItems": 2 }
+        }
+      }
+    },
+    "missing_data_and_uncertainty": {
+      "type": "array",
+      "description": "Required even if short. Relevant data that is absent, stale, or uncollected.",
+      "items": { "type": "string" }
+    },
+    "suggested_clinician_considerations": {
+      "type": "array",
+      "description": "Questions/checks for the clinician. NOT orders, NOT treatment decisions.",
+      "items": { "type": "string" }
+    },
+    "urgency_assessment": {
+      "type": "object",
+      "required": ["level", "rationale"],
+      "properties": {
+        "level": { "type": "string", "enum": ["routine", "monitor", "urgent", "emergent"] },
+        "rationale": { "type": "string" },
+        "adjusted_from_triage": { "type": "boolean", "description": "True if synthesis changed the triage level (keep the higher of disagreements)." }
+      }
+    },
+    "safety_disclaimer": { "type": "string", "description": "Required, non-empty. Restates decision-support-only, not a diagnosis, fictional data, requires clinician judgment." },
+    "traceability_index": {
+      "type": "object",
+      "description": "Maps every cited source id to its origin. Lets a reviewer/eval resolve each citation.",
+      "additionalProperties": { "type": "string", "enum": ["EHR", "RPM", "ANAMNESIS"] }
+    },
+    "overall_confidence": { "type": "string", "enum": ["low", "medium", "high"] },
+    "notes_for_reviewer": { "type": "string", "description": "Optional free text for the human-in-the-loop." }
+  }
+}
