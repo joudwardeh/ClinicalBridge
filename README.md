@@ -12,10 +12,7 @@
 **University:** Bahçeşehir University  
 **Department:** Artificial Intelligence Engineering Department  
 **Professor:** Binnur Kurt  
-**Group Members:**
-- Kenan Eliyan — 2286181
-- Rama Tamimi — 2285460
-- Joud Wardeh — 2282493
+
 
 > 📍 For a direct map of capstone requirements to repository files, see
 > **[SUBMISSION_MAP.md](SUBMISSION_MAP.md)**.
